@@ -79,6 +79,22 @@ class VerificationBaseSerializer(Serializer):
         msg = 'Please define a validate method.'
         raise NotImplementedError(msg)
 
+
+    def _check_payload_refresh(self, token):
+        # Check payload valid (based off of JSONWebTokenAuthentication,
+        # may want to refactor)
+        try:
+            payload = jwt_decode_handler_refresh(token)
+        except jwt.ExpiredSignature:
+            msg = _('Signature has expired.')
+            raise serializers.ValidationError(msg)
+        except jwt.DecodeError:
+            msg = _('Error decoding signature.')
+            raise serializers.ValidationError(msg)
+
+        return payload
+
+
     def _check_payload(self, token):
         # Check payload valid (based off of JSONWebTokenAuthentication,
         # may want to refactor)
